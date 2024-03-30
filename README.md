@@ -1,2 +1,4 @@
 # mujocodemos
-Mujoco for dynamic simulation
+Example programs for Mujoco for dynamic simulation
+
+
