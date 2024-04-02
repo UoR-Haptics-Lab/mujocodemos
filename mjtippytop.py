@@ -12,6 +12,8 @@ import time
 #import faulthandler
 #from icecream import ic
 import itertools
+import os
+
 
 # ballast has contype=conaffinity=0 so only inertia is considered
 # https://mujoco.readthedocs.io/en/stable/XMLreference.html#body-geom
@@ -55,6 +57,8 @@ angular_velocity = []
 stem_height = []
 q_pos = []
 q_vel = []
+
+mdict={'ts': timevals, 'angvel': angular_velocity, 'stem_height':stem_height, 'qpos':q_pos, 'qvel':q_vel}
 
 
 # ---- Command line -------------------------------------------------------
@@ -102,7 +106,7 @@ renderer = mj.Renderer(model)
 
 # faulthandler.enable() # Seems to be a SIGSEGV 
 
-mujoco.mj_resetDataKeyframe(model, data, 0)  # Reset the state to keyframe 0
+mj.mj_resetDataKeyframe(model, data, 0)  # Reset the state to keyframe 0
 
 #model.opt.timestep = .001
 
@@ -125,22 +129,19 @@ else: # no viewer
     while data.time < args.runtime:
         simandcollect()
 
+# ---- save data ----------
+# uses mdict to determine the variables to save
 
-# ---- save data to simpendata.mat files --
-# ts (s), qpos (m), qvel (rad/s). etc
-if args.mathworks >0 :
-#    mdict={'ts': timevals, 'angvel': angular_velocity, 'stem_height':stem_height}
-    mdict={'ts': timevals, 'angvel': angular_velocity, 'stem_height':stem_height, 'qpos':q_pos, 'qvel':q_vel}
+if args.mathworks >0 : # save as a matlab data
     savemat(matlabdatafile, mdict)
 
-if args.log :
-    if os.path.isdir("Data"):
-        np.savetxt('Data/ts.csv',ts,delimiter=',')
-        np.savetxt('Data/qpos.csv',q_pos,delimiter=',')
-        np.savetxt('Data/qvel.csv',q_vel,delimiter=',')
-    else:
-        print("Please create a Data folder/directory for the data files")
-
+if args.log : # save as csv files
+    if not os.path.isdir("Data"):
+        os.mkdir('Data')
+        print("A Data folder/directory has been created in ",os.getcwd())
+    for k, v in mdict.items():
+        np.savetxt(f'Data/%s.csv'%k,v,delimiter=',')
+    
 if(args.viewer): # 
-    print(f"Debug: Viewer crash line %d "% get_linenumber())
+    print(f"Debug: Viewer crash line %d (if -l or -m then data was saved)"% get_linenumber())
 
