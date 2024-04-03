@@ -1,6 +1,9 @@
 # Tippytop from colab myjoco python tutorial
+# Note, the xml is embedded in this file.
+# This code can run headless or with graphics (-v)
+#
+# Based on 
 # https://colab.research.google.com/github/google-deepmind/mujoco/blob/main/python/tutorial.ipynb
-# can run headless or with graphics
 
 from scipy.io import savemat # needed for matlab style matrices
 from inspect import currentframe, getframeinfo
@@ -93,6 +96,7 @@ def get_linenumber(): # needs inspect
 
 # ---- main programme ----------
 
+# Either of the following 2 lines should be used to load the model (from string or file)
 # model = mj.MjModel.from_xml_path(args.mjmodel) # Model loaded from xml, that can inturn call on URDF etc
 model = mj.MjModel.from_xml_string(tippe_top)
 data = mj.MjData(model)                # MuJoCo data
@@ -123,7 +127,7 @@ if(args.viewer): # viewer is the -v option
                 time.sleep(data.time-elapsedtime)
         print(f'model time=%0.2f, actual time=%0.2f'%(data.time, time.time()-start))
         viewer.close()
-        print(f"Debug: Viewer crash line %d "% get_linenumber())
+        print(f"Debug: Viewer crash issue, reached line %d "% get_linenumber())
 
 else: # no viewer
     while data.time < args.runtime:
@@ -143,5 +147,5 @@ if args.log : # save as csv files
         np.savetxt(f'Data/%s.csv'%k,v,delimiter=',')
     
 if(args.viewer): # 
-    print(f"Debug: Viewer crash line %d (if -l or -m then data was saved)"% get_linenumber())
+    print(f"Debug: Viewer crash issue, reached line %d (if -l or -m then data was saved)"% get_linenumber())
 
