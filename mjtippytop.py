@@ -144,8 +144,10 @@ if args.log : # save as csv files
         os.mkdir('Data')
         print("A Data folder/directory has been created in ",os.getcwd())
     for k, v in mdict.items():
-        np.savetxt(f'Data/%s.csv'%k,v,delimiter=',')
-    
+        np.savetxt(os.path.join('Data',k),v,delimiter=',')
+
+
+
 if(args.viewer): # 
     print(f"Debug: Viewer crash issue, reached line %d (if -l or -m then data was saved)"% get_linenumber())
 
