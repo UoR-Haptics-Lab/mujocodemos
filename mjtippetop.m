@@ -3,7 +3,10 @@
 tic
 if (exist('ts','var')) angvel1=angvel;qpos1=qpos;qvel1=qvel; stem_height1=stem_height;ts1=ts;end
 
-load ttdata.mat
+fname='ttdata.mat';
+f.dir=dir(fname)
+sprintf('File last updated %s ago',string(datetime('now')-datetime(f.date)))
+load(fname)
 toc
 figure(21);plot(ts,angvel); title('Angular velocity')
 grid on;xlabel('time (s)');ylabel('ang vel (rad/s)')
