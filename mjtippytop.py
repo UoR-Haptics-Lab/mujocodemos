@@ -46,7 +46,7 @@ tippe_top = """
   <keyframe>
     <key name="spinning" qpos="0 0 0.02 1 0 0 0" qvel="0 0 0 0 1 200" />
     <key name="spinning198" qpos="0 0 0.02 1 0 0 0" qvel="0 0 0 0 1 198" />
-    <key name="spinning90" qpos="0 0 0.02 1 0 0 0" qvel="0 0 0 0 1 100" />
+    <key name="spinning90" qpos="0 0 0.02 1 0 0 0" qvel="0 0 0 0 1 10" />
   </keyframe>
 </mujoco>
 """
@@ -64,12 +64,15 @@ q_vel = []
 mdict={'ts': timevals, 'angvel': angular_velocity, 'stem_height':stem_height, 'qpos':q_pos, 'qvel':q_vel}
 
 
+
 # ---- Command line -------------------------------------------------------
 parser = argparse.ArgumentParser(description='Load a mujoco file, run a simulation and save data for matlab.')
 
 parser.add_argument('-v', '--viewer',action='store_true',help='use the mjuoco viewer')      # viewer
 parser.add_argument('-vrt', '--rtviewer',action='store_true',help='to be done. View in or out of real time')      # viewer
-parser.add_argument('-x', '--mjmodel',type=str,default='simplecontrolonelink.xml',help='Will use named file as the mjmodel.If not given uses a default file')      # model file
+# parser.add_argument('-x', '--mjmodel',type=str,default='simplecontrolonelink.xml',help='Will use named file as the mjmodel.If not given uses a default file')      # model file
+parser.add_argument('-X','--xml', nargs='?', const='default.xml', help='Use the default or this xml file') # nargs='?' implies zero or one argument
+parser.add_argument('-kf', '--keyframe',type=int,default=0,help='Set the keyframe if it exists')  # key frame
 parser.add_argument('-r', '--runtime',type=float,default=5,help='set the runtime in seconds')  # runtime
 parser.add_argument('-l', '--log',action='store_true', help='log the data into csv files')     # csv log
 parser.add_argument('-m', '--mathworks',action='store_true', help='log the data into a matlab matrix')  # matlab logs may be faster
@@ -77,6 +80,8 @@ parser.add_argument('-s', '--numsensors',type=int, default=-1, help='t.b.d. save
 args=parser.parse_args()
 
 # ---- Command line done -------------------------------------------------------
+
+
 # ---- Functions -------------------------------------------------------
 
 # called each time around the loop
@@ -97,8 +102,11 @@ def get_linenumber(): # needs inspect
 # ---- main programme ----------
 
 # Either of the following 2 lines should be used to load the model (from string or file)
-# model = mj.MjModel.from_xml_path(args.mjmodel) # Model loaded from xml, that can inturn call on URDF etc
-model = mj.MjModel.from_xml_string(tippe_top)
+# 
+if args.xml == None:
+    model = mj.MjModel.from_xml_string(tippe_top)
+else:
+    model = mj.MjModel.from_xml_path(args.xml) # Model loaded from xml, that can inturn call on URDF etc    
 data = mj.MjData(model)                # MuJoCo data
 renderer = mj.Renderer(model)
 
@@ -110,7 +118,9 @@ renderer = mj.Renderer(model)
 
 # faulthandler.enable() # Seems to be a SIGSEGV 
 
-mj.mj_resetDataKeyframe(model, data, 0)  # Reset the state to keyframe 0
+kf=args.keyframe
+mj.mj_resetDataKeyframe(model, data, kf)  # Reset the state to keyframe 0
+
 
 #model.opt.timestep = .001
 
