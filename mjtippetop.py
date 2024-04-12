@@ -31,7 +31,7 @@ tippe_top = """
   </asset>
 
   <worldbody>
-    <geom size=".2 .2 .01" type="plane" material="grid"/>
+    <geom size=".2 .2 .001" type="plane" material="grid"/>
     <light pos="0 0 .6"/>
     <camera name="closeup" pos="0 -.1 .07" xyaxes="1 0 0 0 1 2"/>
     <body name="top" pos="0 0 .02">
@@ -65,6 +65,8 @@ mdict={'ts': timevals, 'angvel': angular_velocity, 'stem_height':stem_height, 'q
 
 
 
+
+
 # ---- Command line -------------------------------------------------------
 parser = argparse.ArgumentParser(description='Load a mujoco file, run a simulation and save data for matlab.')
 
@@ -90,12 +92,14 @@ def simandcollect():
     timevals.append(data.time)
     angular_velocity.append(data.qvel[3:6].copy())
     stem_height.append(data.geom_xpos[2,2])
-    q_pos.append(data.qpos[0:6].copy())
-    q_vel.append(data.qvel[0:2].copy())
+    q_pos.append(data.qpos[0:7].copy())
+    q_vel.append(data.qvel[0:6].copy())
 
 def get_linenumber(): # needs inspect
     cf = currentframe()
     return cf.f_back.f_lineno
+
+
     
 # ---- Functions done -------------------------------------------------------
 
@@ -108,7 +112,7 @@ if args.xml == None:
 else:
     model = mj.MjModel.from_xml_path(args.xml) # Model loaded from xml, that can inturn call on URDF etc    
 data = mj.MjData(model)                # MuJoCo data
-renderer = mj.Renderer(model)
+# renderer = mj.Renderer(model)
 
 
 
@@ -146,7 +150,10 @@ else: # no viewer
 # ---- save data ----------
 # uses mdict to determine the variables to save
 
+
+
 if args.mathworks >0 : # save as a matlab data
+    mdict = {**mdict,'mass':model.body_mass, 'inertia':model.body_inertia}
     savemat(matlabdatafile, mdict)
 
 if args.log : # save as csv files
@@ -160,4 +167,7 @@ if args.log : # save as csv files
 
 if(args.viewer): # 
     print(f"Debug: Viewer crash issue, reached line %d (if -l or -m then data was saved)"% get_linenumber())
+
+# ---- print out some data ----
+# print(model.body('top'))
 
