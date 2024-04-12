@@ -72,7 +72,7 @@ while physics.data.time < args.runtime:
       mycnt=mycnt+1
 
 #display_video(frames, framerate)
-savemat('somedata.mat',{'frames':frames})
+savemat('moviedata.mat',{'frames':frames})
 filepath='data.raw'
 with open (filepath,'wb') as FileToWrite:
   np.asarray(frames,dtype=np.uint8).tofile(FileToWrite)
